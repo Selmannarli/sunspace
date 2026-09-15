@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {parseContext,inFeature,roadWidth,joinRings,contextQuery} from './urban-context.js';
+const point=(x,y)=>({lon:x/111320,lat:-y/111320});
+const geometry=p=>p.map(([x,y])=>point(x,y));
+const square=[[-40,-40],[40,-40],[40,40],[-40,40],[-40,-40]];
+const hole=[[-5,-5],[5,-5],[5,5],[-5,5],[-5,-5]];
+const data={elements:[{type:'relation',id:1,tags:{type:'multipolygon',natural:'water'},members:[{ref:10,role:'outer',geometry:geometry(square.slice(0,3))},{ref:11,role:'outer',geometry:geometry(square.slice(2))},{ref:12,role:'inner',geometry:geometry(hole)}]},{type:'way',id:2,tags:{highway:'residential',lanes:'2'},geometry:geometry([[-200,70],[200,70]])},{type:'way',id:3,tags:{leisure:'park'},geometry:geometry(square)},{type:'way',id:4,tags:{highway:'footway',tunnel:'yes'},geometry:geometry([[-20,0],[20,0]])}]};
+const c=parseContext(data,{lat:0,lon:0});assert.equal(c.features.length,3);assert.equal(c.stats.underground,1);const water=c.features.find(f=>f.kind==='water');assert(inFeature(20,20,water));assert(!inFeature(0,0,water),'Water hole must remain dry');assert.equal(c.features.find(f=>f.line).width,6);assert(inFeature(0,70,c.features.find(f=>f.line)),'Crossing road is retained even with vertices outside study');assert.equal(roadWidth({width:'20 ft'}).width,6.096);assert.equal(joinRings([[[0,0],[1,1]]]).incomplete,1);assert(contextQuery(41,2).includes('waterway'));
+const real=parseContext(JSON.parse(fs.readFileSync('barcelona-context.json','utf8')),{lat:41.4005,lon:2.1572});assert(real.features.some(f=>f.group==='roads'));assert(real.features.some(f=>f.group==='surfaces'));console.log('PASS: multipolygon stitching and holes, widths, crossing roads, tunnels, query and Barcelona import.');console.log(real.features.reduce((counts,f)=>(counts[f.kind]=(counts[f.kind]||0)+1,counts),{}));
