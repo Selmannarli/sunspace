@@ -1,5 +1,5 @@
-import {mountAreaMap} from './area-map.js';
-import {solar,rect,inside,shadowPolygons,shadeAt,makeDemo} from './model.js';
+import {mountAreaMap} from './area-map.js?v=20260915-map2';
+import {solar,rect,inside,shadowPolygons,shadeAt,makeDemo} from './model.js?v=20260915-map2';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const state={lat:41.4005,lon:2.1572,zone:'Europe/Madrid',date:'2026-06-21',minute:840,buildings:makeDemo(),trees:[[-42,-23],[-35,-25],[-27,-27],[35,30],[43,29],[48,22]].map(([x,y])=>({x,y,type:'tree'})),added:[],view:'shadows',tool:null,selected:null,angle:-.35,zoom:1,source:'Illustrative teaching model',name:'Plaça de la Vila de Gràcia',city:'Barcelona, Spain'};
 const canvas=$('#scene'),ctx=canvas.getContext('2d');let moving=null;let W=800,H=450,scale=3,origin=[400,240],sun,playing=false,frame=0,heat=[],baseHeat=[],samples=[],metrics={},pointer=null,drag=null,dragged=false,heatTimer;
